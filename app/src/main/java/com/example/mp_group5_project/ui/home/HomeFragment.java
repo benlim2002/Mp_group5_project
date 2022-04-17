@@ -17,8 +17,13 @@ import com.example.mp_group5_project.databinding.FragmentHomeBinding;
 
 public class HomeFragment extends Fragment {
 
+
     private HomeViewModel homeViewModel;
     private FragmentHomeBinding binding;
+
+    public HomeViewModel getHomeViewModel() {
+        return homeViewModel;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -35,6 +40,8 @@ public class HomeFragment extends Fragment {
                 textView.setText(s);
             }
         });
+
+        homeViewModel.getText();
         return root;
     }
 
@@ -43,4 +50,5 @@ public class HomeFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
 }
