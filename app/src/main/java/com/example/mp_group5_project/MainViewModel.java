@@ -1,5 +1,6 @@
 package com.example.mp_group5_project;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -7,15 +8,15 @@ import androidx.lifecycle.ViewModel;
 import com.example.mp_group5_project.sql.User;
 
 public class MainViewModel extends ViewModel {
+    public void setCurrentUser(User user) {
+        currentUser.setValue(user);
+    }
+
     private MutableLiveData<User> currentUser;
-    private MutableLiveData<String> mText;
 
     public MainViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is Main View Model mText");
+        currentUser = new MutableLiveData<>();
     }
 
-    public LiveData<String> getText() {
-        return mText;
-    }
+    public LiveData<User> getUser() { return currentUser; }
 }

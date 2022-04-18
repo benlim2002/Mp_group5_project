@@ -142,19 +142,16 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void addUserToDatabase(){
-        user = new User();
-        user.setName(nameET.getText().toString());
-        user.setPhoneNo(mobileET.getText().toString());
-        user.setEmail(emailET.getText().toString());
-        user.setUsername(usernameET.getText().toString());
-        user.setPassword(passwordET.getText().toString());
-
         userDBHandler = new UserDBHandler(this);
 
+        String name = nameET.getText().toString();
+        String email = emailET.getText().toString();
+        String phoneNo = mobileET.getText().toString();
         String username = usernameET.getText().toString();
+        String password = passwordET.getText().toString();
         ArrayList<HashMap<String, String>> userList = userDBHandler.GetUserByUsername(username);
         if (userList.isEmpty()) {
-            userDBHandler.addUser(user);
+            userDBHandler.addUser(name, phoneNo, email, username, password);
             Toast.makeText(this, "User account successfully created.", Toast.LENGTH_SHORT).show();
             finish();
         }

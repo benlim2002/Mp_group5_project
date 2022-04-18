@@ -1,15 +1,20 @@
 package com.example.mp_group5_project;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.mp_group5_project.sql.UserDBHandler;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
@@ -24,7 +29,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mp_group5_project.databinding.ActivityMainBinding;
 
-import java.time.Instant;
+import java.io.File;
 import java.util.Date;
 
 
@@ -44,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        UserDBHandler userDB = new UserDBHandler(this);
+        mainViewModel.setCurrentUser(userDB.getCurrentUser());
 
         setSupportActionBar(binding.appBarMain.toolbar);
         binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
@@ -59,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_setting)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
@@ -68,15 +75,28 @@ public class MainActivity extends AppCompatActivity {
 
         drawer.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
-            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
-                TextView navHeaderUsernameTV = drawerView.findViewById(R.id.navHeaderUsernameTV);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    navHeaderUsernameTV.setText(new Date(Instant.now().toEpochMilli()).toString());
-                }
-            }
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {}
 
             @Override
-            public void onDrawerOpened(@NonNull View drawerView) {}
+            public void onDrawerOpened(@NonNull View drawerView) {
+                TextView navHeaderUsernameTV = drawerView.findViewById(R.id.navHeaderUsernameTV);
+                TextView navHeaderEmailTV = drawerView.findViewById(R.id.navHeaderEmailTV);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    navHeaderUsernameTV.setText(mainViewModel.getUser().getValue().getUsername());
+                    navHeaderEmailTV.setText(mainViewModel.getUser().getValue().getEmail());
+//                    navHeaderUsernameTV.setText(new Date(Instant.now().toEpochMilli()).toString());
+                }
+                SharedPreferences pref = getSharedPreferences("image_path", Context.MODE_PRIVATE);
+                if(pref.contains("profilePhotoPath")) {
+                    String currentPhotoPath = pref.getString("profilePhotoPath", "");
+                    if(currentPhotoPath.isEmpty() == false) {
+                        File imgFile = new File(currentPhotoPath);
+                        Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                        ImageView frontImgHead = (ImageView) drawerView.findViewById(R.id.navHeaderImageView);
+                        frontImgHead.setImageBitmap(bitmap);
+                    }
+                }
+            }
 
             @Override
             public void onDrawerClosed(@NonNull View drawerView) {}

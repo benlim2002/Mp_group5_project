@@ -17,6 +17,7 @@ import com.example.mp_group5_project.MainActivity;
 import com.example.mp_group5_project.MainViewModel;
 import com.example.mp_group5_project.R;
 import com.example.mp_group5_project.databinding.FragmentGalleryBinding;
+import com.example.mp_group5_project.sql.User;
 import com.example.mp_group5_project.ui.home.HomeFragment;
 
 public class GalleryFragment extends Fragment {
@@ -36,10 +37,10 @@ public class GalleryFragment extends Fragment {
                 new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
         final TextView galleryText = binding.textGallery;
-        galleryViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        galleryViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<User>() {
             @Override
-            public void onChanged(@Nullable String s) {
-                galleryText.setText(s);
+            public void onChanged(User user) {
+                galleryText.setText(user.getName() + "'s Gallery");
             }
         });
         return root;
