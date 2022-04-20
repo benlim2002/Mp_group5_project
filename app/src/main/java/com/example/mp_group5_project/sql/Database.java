@@ -45,7 +45,6 @@ public class Database extends SQLiteOpenHelper {
     private static final String COLUMN_IMAGE_PATH = "path";
 
     SharedPreferences loginpref;
-    private int userId;
     final Context context;
 
     private User currentUser;
@@ -63,6 +62,11 @@ public class Database extends SQLiteOpenHelper {
             // array of columns to fetch
             String[] columns = {
                     COLUMN_USER_ID,
+                    COLUMN_USER_NAME,
+                    COLUMN_USER_PHONENO,
+                    COLUMN_USER_EMAIL,
+                    COLUMN_USER_PASSWORD,
+                    COLUMN_USER_USERNAME
             };
 
             // selection criteria
@@ -80,13 +84,21 @@ public class Database extends SQLiteOpenHelper {
                     null);              //The sort order
 
             if (cursor.moveToNext()){
-                userId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_ID));
+                currentUser = new User(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_PHONENO)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_EMAIL)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_USERNAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_PASSWORD))
+                );
+
             }
         }
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.w("Database", "Crreating newest Database Tables");
         String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + "("
                 + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_USER_NAME + " TEXT,"
                 + COLUMN_USER_PHONENO + " TEXT," + COLUMN_USER_EMAIL + " TEXT,"
@@ -115,7 +127,7 @@ public class Database extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(COLUMN_IMAGE_PATH, path);
-        values.put(COLUMN_USER_ID, userId);
+        values.put(COLUMN_USER_ID, currentUser.getId());
 
         // Inserting Row
         db.insert(TABLE_IMAGE, null, values);
@@ -125,11 +137,12 @@ public class Database extends SQLiteOpenHelper {
     // Get User Images based on userid
     public String[] getUserImages() {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query(TABLE_IMAGE, new String[]{COLUMN_IMAGE_PATH}, COLUMN_USER_ID + "=?", new String[]{String.valueOf(userId)}, null, null, null, null);
+        Cursor cursor = db.query(TABLE_IMAGE, new String[]{COLUMN_IMAGE_PATH}, COLUMN_USER_ID + "=?", new String[]{String.valueOf(currentUser.getId())}, null, null, null, null);
         int i = 0;
         String images[] = new String[cursor.getCount()];
-        if (cursor.moveToNext()) {
-            images[0] = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_IMAGE_PATH));
+        while (cursor.moveToNext()) {
+            images[i] = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_IMAGE_PATH));
+            i++;
         }
         return images;
     }
@@ -166,7 +179,7 @@ public class Database extends SQLiteOpenHelper {
         currentUser.setName(name);
         currentUser.setPhoneNo(phoneNo);
         currentUser.setPassword(password);
-        return  count;
+        return count;
     }
 
     // Get User id and password based on username

@@ -24,7 +24,6 @@ public class GalleryFragment extends Fragment {
 
     private MainViewModel galleryViewModel;
     private FragmentGalleryBinding binding;
-    private String images[];
 
     GridView simpleGrid;
 
@@ -49,9 +48,8 @@ public class GalleryFragment extends Fragment {
 
         galleryViewModel.getImages().observe(getViewLifecycleOwner(), new Observer<String[]>() {
             @Override
-            public void onChanged(String[] strings) {
-                Log.i(TAG, "Length: " + strings.length);
-                images = strings;
+            public void onChanged(String[] images) {
+                Log.i(TAG, "Length: " + images.toString());
                 simpleGrid = (GridView) root.findViewById(R.id.gridView); // init GridView
                 // Create an object of CustomAdapter and set Adapter to GirdView
                 CustomAdapter customAdapter = new CustomAdapter(getActivity(), images);
