@@ -8,15 +8,25 @@ import androidx.lifecycle.ViewModel;
 import com.example.mp_group5_project.sql.User;
 
 public class MainViewModel extends ViewModel {
+
+    private MutableLiveData<User> currentUser;
+    private MutableLiveData<Integer> currentFilter;
+
+    public MainViewModel() {
+        currentUser = new MutableLiveData<>();
+        currentFilter = new MutableLiveData<>();
+        currentFilter.setValue(R.id.filter0);
+    }
+
+    public LiveData<User> getUser() { return currentUser; }
+
     public void setCurrentUser(User user) {
         currentUser.setValue(user);
     }
 
-    private MutableLiveData<User> currentUser;
+    public LiveData<Integer> getFilter() { return currentFilter; }
 
-    public MainViewModel() {
-        currentUser = new MutableLiveData<>();
+    public void setCurrentFilter(Integer i) {
+        currentFilter.setValue(i);
     }
-
-    public LiveData<User> getUser() { return currentUser; }
 }
