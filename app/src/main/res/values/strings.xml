@@ -14,4 +14,5 @@
     <string name="log_out">Log Out</string>
     <string name="more">More</string>
     <string name="option_filters">Filters</string>
+    <string name="action_register">Register</string>
 </resources>

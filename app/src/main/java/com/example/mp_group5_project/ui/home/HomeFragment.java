@@ -16,12 +16,10 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -29,7 +27,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.mp_group5_project.MainViewModel;
 import com.example.mp_group5_project.R;
 import com.example.mp_group5_project.databinding.FragmentHomeBinding;
-import com.example.mp_group5_project.sql.User;
+import com.example.mp_group5_project.sql.Database;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -50,7 +48,7 @@ public class HomeFragment extends Fragment {
     private int filterId = R.id.filter0;
     private int mCurrentFilterId = 0;
     private final String TAG = "HomeFragment";
-    ActivityResultLauncher<String> mPermissionResult;
+    private Database db;
 
     String[] TITLES = {"Original", "EdgeDetection", "Pixelize",
             "EMInterference", "TrianglesMosaic", "Legofied",
@@ -81,9 +79,20 @@ public class HomeFragment extends Fragment {
         homeViewModel =
                 new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
+        db = new Database(requireActivity());
+
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         layout = binding.homeLayout;
         setHasOptionsMenu(true);
+
+        homeViewModel.getCameraAllowed().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if(aBoolean) {
+                    setupCameraPreviewView();
+                }
+            }
+        });
 
         homeViewModel.getFilter().observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
@@ -96,20 +105,7 @@ public class HomeFragment extends Fragment {
         });
 
         View root = binding.getRoot();
-        mPermissionResult = registerForActivityResult(
-                new ActivityResultContracts.RequestPermission(),
-                new ActivityResultCallback<Boolean>() {
-                    @Override
-                    public void onActivityResult(Boolean result) {
-                        if(result) {
-                            Log.e(TAG, "onActivityResult: PERMISSION GRANTED");
-                            setupCameraPreviewView();
-                        } else {
-                            Log.e(TAG, "onActivityResult: PERMISSION DENIED");
-                            Toast.makeText(getActivity(), "Cannot proceed because user not allowing camera uses", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+
 
         if (ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.CAMERA)
@@ -133,6 +129,7 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
+        if(renderer != null)
         renderer.stopRunning();
         super.onDestroyView();
         binding = null;
@@ -179,41 +176,47 @@ public class HomeFragment extends Fragment {
     }
 
     private boolean capture() {
-        Date date = new Date();
-        SimpleDateFormat dateformat1 = new SimpleDateFormat("yyyyMMdd_hhmmss");
-        String timeString = dateformat1.format(date);
-        String fileName = TITLES[mCurrentFilterId] + "_" + timeString + ".png";
+        if(textureView != null) {
+            Date date = new Date();
+            SimpleDateFormat dateformat1 = new SimpleDateFormat("yyyyMMdd_hhmmss");
+            String timeString = dateformat1.format(date);
+            String fileName = TITLES[mCurrentFilterId] + "_" + timeString + ".png";
 
-        String path = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString();
-        File parent = new File(path);
-        File destination = new File(parent, fileName);
-        Log.d("Parent", parent.getAbsolutePath());
-        Log.i("Destination", destination.getAbsolutePath());
-        // create bitmap screen capture
-        Bitmap bitmap = textureView.getBitmap();
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
-        FileOutputStream fo;
+            String path = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString();
+            File parent = new File(path);
+            File destination = new File(parent, fileName);
+            Log.d("Parent", parent.getAbsolutePath());
+            Log.i("Destination", destination.getAbsolutePath());
+            // create bitmap screen capture
+            Bitmap bitmap = textureView.getBitmap();
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+            FileOutputStream fo;
 
-        try {
-            parent.mkdir();
-            destination.createNewFile();
-            fo = new FileOutputStream(destination);
-            fo.write(bytes.toByteArray());
-            fo.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-        File[] files = new File(path).listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-               Log.i(" Files [" + i + "]", files[i].getName());
+            try {
+                parent.mkdir();
+                destination.createNewFile();
+                fo = new FileOutputStream(destination);
+                fo.write(bytes.toByteArray());
+                fo.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                return false;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
             }
+            Log.d("New File", destination.getAbsolutePath());
+            db.addImage(destination.getAbsolutePath());
+            homeViewModel.setCurrentUserImages(db.getUserImages());
+            File[] files = new File(path).listFiles();
+            if (files != null) {
+                for (int i = 0; i < files.length; i++) {
+                   Log.i("Files [" + i + "]", FileProvider.getUriForFile(getActivity(), "com.example.mp_group5_project", new File(files[i].getAbsolutePath())).toString());
+                }
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 }

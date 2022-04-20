@@ -30,14 +30,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mp_group5_project.MainViewModel;
 import com.example.mp_group5_project.R;
+import com.example.mp_group5_project.sql.Database;
 import com.example.mp_group5_project.sql.User;
-import com.example.mp_group5_project.sql.UserDBHandler;
 import com.mikhaellopez.circularimageview.CircularImageView;
 
 import java.io.ByteArrayOutputStream;
@@ -45,8 +44,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class SettingFragment extends Fragment {
 
@@ -68,7 +65,7 @@ public class SettingFragment extends Fragment {
     TextView headerEmailTV;
 
     ImageButton saveImgBtn;
-    UserDBHandler userDB;
+    Database db;
     MainViewModel settingViewModel;
 
     public static final String TAG = "SettingFragment";
@@ -77,7 +74,7 @@ public class SettingFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        userDB = new UserDBHandler(getActivity());
+        db = new Database(requireActivity());
         pref = getActivity().getSharedPreferences("image_path", Context.MODE_PRIVATE);
 
         mPermissionResult = registerForActivityResult(
@@ -224,8 +221,8 @@ public class SettingFragment extends Fragment {
     }
 
     public void saveUserData() {
-        userDB.UpdateUserDetails(nameET.getText().toString(), emailET.getText().toString(), mobileET.getText().toString(), passwordET.getText().toString());
-        settingViewModel.setCurrentUser(userDB.getCurrentUser());
+        db.UpdateUserDetails(nameET.getText().toString(), emailET.getText().toString(), mobileET.getText().toString(), passwordET.getText().toString());
+        settingViewModel.setCurrentUser(db.getCurrentUser());
 
         Toast.makeText(getContext(), "Save User Done!", Toast.LENGTH_LONG);
     }

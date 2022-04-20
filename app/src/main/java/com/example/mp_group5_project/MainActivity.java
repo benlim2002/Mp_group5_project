@@ -1,8 +1,10 @@
 package com.example.mp_group5_project;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
@@ -11,14 +13,16 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.example.mp_group5_project.sql.UserDBHandler;
+import com.example.mp_group5_project.sql.Database;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -31,7 +35,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.mp_group5_project.databinding.ActivityMainBinding;
 
 import java.io.File;
-import java.util.Date;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -42,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private final String TAG = "Main";
 
+    private ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {});
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,8 +56,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        UserDBHandler userDB = new UserDBHandler(this);
-        mainViewModel.setCurrentUser(userDB.getCurrentUser());
+        Database db = new Database(this);
+        mainViewModel.setCurrentUser(db.getCurrentUser());
+        mainViewModel.setCurrentUserImages(db.getUserImages());
+        requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+
 
         setSupportActionBar(binding.appBarMain.toolbar);
         binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
@@ -62,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
         // Passing each menu ID as a set of Ids because each
@@ -106,6 +116,29 @@ public class MainActivity extends AppCompatActivity {
             public void onDrawerStateChanged(int newState) {}
         });
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        Log.d("Request Code", "" + requestCode);
+        switch (requestCode) {
+            case 101:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    mainViewModel.setCameraAllowed(true);
+                }  else {
+                    Toast.makeText(getApplicationContext(), "Please Allow Camera Usage!", Toast.LENGTH_LONG).show();
+                }
+                return;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+        // Other 'case' lines to check for other
+        // permissions this app might request.
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

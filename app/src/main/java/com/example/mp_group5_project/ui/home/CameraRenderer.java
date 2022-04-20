@@ -206,7 +206,7 @@ public class CameraRenderer implements Runnable, TextureView.SurfaceTextureListe
         }
 
         // Render loop
-        while (!Thread.currentThread().isInterrupted() && running) {
+        while (!Thread.currentThread().isInterrupted() && running && camera != null) {
             try {
                 if (gwidth < 0 && gheight < 0)
                     GLES20.glViewport(0, 0, gwidth = -gwidth, gheight = -gheight);

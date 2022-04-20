@@ -19,11 +19,12 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.mp_group5_project.sql.UserDBHandler;
+import com.example.mp_group5_project.sql.Database;
 import com.example.mp_group5_project.sql.User;
 
 import java.util.ArrayList;
@@ -36,11 +37,11 @@ public class ProfileActivity extends AppCompatActivity {
     EditText emailET;
     EditText usernameET;
     EditText passwordET;
-    ImageButton addImgBtn;
+    Button addImgBtn;
     ImageButton pwdImgBtn;
 
     User user;
-    UserDBHandler userDBHandler;
+    Database DBHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class ProfileActivity extends AppCompatActivity {
         usernameET = (EditText) findViewById(R.id.usernameProfileET);
         passwordET = (EditText) findViewById(R.id.passwordProfileET);
 
-        addImgBtn = (ImageButton) findViewById(R.id.addProfileImgBtn);
+        addImgBtn = (Button) findViewById(R.id.addProfileImgBtn);
         addImgBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,16 +143,16 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void addUserToDatabase(){
-        userDBHandler = new UserDBHandler(this);
+        DBHandler = new Database(this);
 
         String name = nameET.getText().toString();
         String email = emailET.getText().toString();
         String phoneNo = mobileET.getText().toString();
         String username = usernameET.getText().toString();
         String password = passwordET.getText().toString();
-        ArrayList<HashMap<String, String>> userList = userDBHandler.GetUserByUsername(username);
+        ArrayList<HashMap<String, String>> userList = DBHandler.GetUserByUsername(username);
         if (userList.isEmpty()) {
-            userDBHandler.addUser(name, phoneNo, email, username, password);
+            DBHandler.addUser(name, phoneNo, email, username, password);
             Toast.makeText(this, "User account successfully created.", Toast.LENGTH_SHORT).show();
             finish();
         }

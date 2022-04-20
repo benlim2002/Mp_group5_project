@@ -96,7 +96,6 @@ public abstract class CameraFilter {
     }
 
     final public void draw(int cameraTexId, int canvasWidth, int canvasHeight) {
-        // TODO move?
         // Create camera render buffer
         if (CAMERA_RENDER_BUF == null ||
                 CAMERA_RENDER_BUF.getWidth() != canvasWidth ||
@@ -121,14 +120,15 @@ public abstract class CameraFilter {
         GLES20.glVertexAttribPointer(vTexCoordLocation, 2, GLES20.GL_FLOAT, false, 4 * 2, ROATED_TEXTURE_COORD_BUF);
 
         // Render to texture
-        CAMERA_RENDER_BUF.bind();
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-        CAMERA_RENDER_BUF.unbind();
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        if(CAMERA_RENDER_BUF != null) {
+            CAMERA_RENDER_BUF.bind();
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+            CAMERA_RENDER_BUF.unbind();
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
-        onDraw(CAMERA_RENDER_BUF.getTexId(), canvasWidth, canvasHeight);
-
+            onDraw(CAMERA_RENDER_BUF.getTexId(), canvasWidth, canvasHeight);
+        }
         iFrame++;
     }
 

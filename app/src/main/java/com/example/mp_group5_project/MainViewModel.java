@@ -11,10 +11,14 @@ public class MainViewModel extends ViewModel {
 
     private MutableLiveData<User> currentUser;
     private MutableLiveData<Integer> currentFilter;
+    private MutableLiveData<String[]> currentUserImages;
+    private MutableLiveData<Boolean> cameraAllowed;
 
     public MainViewModel() {
         currentUser = new MutableLiveData<>();
+        currentUserImages = new MutableLiveData<>();
         currentFilter = new MutableLiveData<>();
+        cameraAllowed = new MutableLiveData<>();
         currentFilter.setValue(R.id.filter0);
     }
 
@@ -29,4 +33,16 @@ public class MainViewModel extends ViewModel {
     public void setCurrentFilter(Integer i) {
         currentFilter.setValue(i);
     }
+
+    public LiveData<String[]> getImages() {
+        return currentUserImages;
+    }
+
+    public void setCurrentUserImages(String[] images) {
+        currentUserImages.setValue(images);
+    }
+
+    public LiveData<Boolean> getCameraAllowed() { return cameraAllowed; }
+
+    public void setCameraAllowed(Boolean allowed) { cameraAllowed.setValue(allowed); }
 }

@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mp_group5_project.sql.UserDBHandler;
+import com.example.mp_group5_project.sql.Database;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,10 +73,10 @@ public class LoginActivity extends AppCompatActivity {
     };
 
     private boolean verifyLogin(){
-        UserDBHandler userDBHandler = new UserDBHandler(this);
+        Database db = new Database(this);
 
         String username = usernameET.getText().toString();
-        ArrayList<HashMap<String, String>> userList = userDBHandler.GetUserByUsername(username);
+        ArrayList<HashMap<String, String>> userList = db.GetUserByUsername(username);
         if (userList.isEmpty()==false) {
             actualPassword = userList.get(0).get("password");
             //Log.d("Test", "Password" + actualPassword);
