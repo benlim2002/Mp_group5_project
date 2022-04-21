@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, view.getParent().toString());
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "E-mail has been sent", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
